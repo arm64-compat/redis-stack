@@ -26,6 +26,7 @@ jobs:
     arch: arm64
     before_script:
     - cd ModuleBuilders
+    - git checkout b1beabb
     - git submodule update --init
     - cd rmbuilder
     - cp Dockerfile Dockerfile.arm
