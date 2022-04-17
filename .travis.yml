@@ -1,11 +1,12 @@
 language: c
 
-dist: xenial
+dist: focal
 
 os: linux
 
 addons:
   apt:
+  - python2
   - python3
 
 env:
@@ -21,18 +22,32 @@ services:
 
 jobs:
   include:
-  - name: "Build ModuleBuilder"
+  # - name: "Build ModuleBuilder"
+  #   stage: build
+  #   arch: arm64
+  #   before_script:
+  #   - cd ModuleBuilders
+  #   - git submodule update --init
+  #   - cd deps/readies
+  #   - git checkout master
+  #   - cd ../../rmbuilder
+  #   - cp ../../Dockerfile.arm Dockerfile.arm
+  #   script:
+  #   - make ARM8=1 OSNICK=bullseye TEST=0
+  - name: "Build Redis Bloom"
     stage: build
     arch: arm64
     before_script:
-    - cd ModuleBuilders
-    - git submodule update --init
-    - cd deps/readies
-    - git checkout master
-    - cd ../../rmbuilder
-    - cp ../../Dockerfile.arm Dockerfile.arm
+    - make -C RedisBloom setup
     script:
-    - make ARM8=1 OSNICK=bullseye TEST=0
+    - make -C RedisBloom
+  # - name: "Build RedisJSON"
+  #   stage: build
+  #   arch: arm64
+  #   before_script:
+  #   - make -C RedisJSON setup
+  #   script:
+  #   - make -C RedisJSON
   # - name: "Build RediSearch"
   #   stage: build
   #   arch: arm64
