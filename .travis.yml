@@ -9,6 +9,7 @@ addons:
   - python2
   - python3
   - cargo
+  - peg
 
 env:
   global:
@@ -49,6 +50,23 @@ jobs:
     arch: arm64
     before_script:
     - cd RediSearch
+    - git submodule update --init --recursive
+    - make setup
+    script:
+    - make
+  - name: "Build Redis Graph"
+    stage: build
+    arch: arm64
+    before_script:
+    - cd RedisGraph
+    - git submodule update --init --recursive
+    script:
+    - make
+  - name: "Build Redis Timeseries"
+    stage: build
+    arch: arm64
+    before_script:
+    - cd RedisTimeSeries
     - git submodule update --init --recursive
     - make setup
     script:

@@ -7,3 +7,9 @@
 [submodule "RedisJSON"]
 	path = RedisJSON
 	url = https://github.com/RedisJSON/RedisJSON.git
+[submodule "RedisTimeSeries"]
+	path = RedisTimeSeries
+	url = https://github.com/RedisTimeSeries/RedisTimeSeries.git
+[submodule "RedisGraph"]
+	path = RedisGraph
+	url = https://github.com/RedisGraph/RedisGraph.git
