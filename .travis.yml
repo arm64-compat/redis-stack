@@ -22,18 +22,6 @@ services:
 
 jobs:
   include:
-  # - name: "Build ModuleBuilder"
-  #   stage: build
-  #   arch: arm64
-  #   before_script:
-  #   - cd ModuleBuilders
-  #   - git submodule update --init
-  #   - cd deps/readies
-  #   - git checkout master
-  #   - cd ../../rmbuilder
-  #   - cp ../../Dockerfile.arm Dockerfile.arm
-  #   script:
-  #   - make ARM8=1 OSNICK=bullseye TEST=0
   - name: "Build Redis Bloom"
     stage: build
     arch: arm64
