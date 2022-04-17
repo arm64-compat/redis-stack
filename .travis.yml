@@ -1,0 +1,58 @@
+language: c
+
+dist: xenial
+
+os: linux
+
+addons:
+  apt:
+    - python3
+
+env:
+  global:
+  - DOCKER_REGISTRY=ghcr.io
+  - DOCKER_REPOSITORY=arm64-compat/redis-stack
+
+stages:
+- build
+
+services:
+- docker
+
+jobs:
+  include:
+  - name: "Build RedisBloom"
+    stage: build
+    arch: arm64
+    before_script:
+    - make -C RedisBloom setup
+    script:
+    - make -C RedisBloom
+  - name: "Build RediSearch"
+    stage: build
+    arch: arm64
+    before_script:
+    - make -C RediSearch setup
+    script:
+    - make -C RediSearch
+  - name: "Build RedisJSON"
+    stage: build
+    arch: arm64
+    before_script:
+    - make -C RedisJSON setup
+    script:
+    - make -C RedisJSON
+  - name: "Build RedisTimeSeries"
+    stage: build
+    arch: arm64
+    before_script:
+    - make -C RedisTimeSeries setup
+    script:
+    - make -C RedisTimeSeries
+  - name: "Build RedisGraph"
+    stage: build
+    arch: arm64
+    before_script:
+    - make -C RedisGraph setup
+    script:
+    - make -C RedisGraph
