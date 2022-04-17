@@ -26,12 +26,13 @@ jobs:
     arch: arm64
     before_script:
     - cd ModuleBuilders
-    - git checkout b1beabb
     - git submodule update --init
-    - cd rmbuilder
-    - cp Dockerfile Dockerfile.arm
+    - cd deps/readies
+    - git checkout master
+    - cd ../../rmbuilder
+    - cp ../../Dockerfile.arm Dockerfile.arm
     script:
-    - make ARM8=1 OSNICK=bullseye
+    - make ARM8=1 OSNICK=bullseye TEST=0
   # - name: "Build RediSearch"
   #   stage: build
   #   arch: arm64
