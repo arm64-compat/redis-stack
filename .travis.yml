@@ -8,6 +8,7 @@ addons:
   apt:
   - python2
   - python3
+  - cargo
 
 env:
   global:
@@ -16,6 +17,9 @@ env:
 
 stages:
 - build
+
+git:
+  submodules: false
 
 services:
 - docker
@@ -26,23 +30,29 @@ jobs:
     stage: build
     arch: arm64
     before_script:
-    - make -C RedisBloom setup
+    - cd RedisBloom
+    - git submodule update --init --recursive
+    - make setup
     script:
-    - make -C RedisBloom
-  # - name: "Build RedisJSON"
-  #   stage: build
-  #   arch: arm64
-  #   before_script:
-  #   - make -C RedisJSON setup
-  #   script:
-  #   - make -C RedisJSON
-  # - name: "Build RediSearch"
-  #   stage: build
-  #   arch: arm64
-  #   before_script:
-  #   - make -C RediSearch setup
-  #   script:
-  #   - make -C RediSearch
+    - make
+  - name: "Build Redis JSON"
+    stage: build
+    arch: arm64
+    before_script:
+    - cd RedisJSON
+    - git submodule update --init --recursive
+    - make setup
+    script:
+    - make
+  - name: "Build Redis Search"
+    stage: build
+    arch: arm64
+    before_script:
+    - cd RediSearch
+    - git submodule update --init --recursive
+    - make setup
+    script:
+    - make
   # - name: "Build RedisJSON"
   #   stage: build
   #   arch: arm64
