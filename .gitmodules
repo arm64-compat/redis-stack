@@ -4,3 +4,6 @@
 [submodule "RediSearch"]
 	path = RediSearch
 	url = https://github.com/RediSearch/RediSearch.git
+[submodule "RedisJSON"]
+	path = RedisJSON
+	url = https://github.com/RedisJSON/RedisJSON.git
