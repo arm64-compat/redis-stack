@@ -1,3 +1,6 @@
 [submodule "RedisBloom"]
 	path = RedisBloom
 	url = https://github.com/RedisBloom/RedisBloom.git
+[submodule "RediSearch"]
+	path = RediSearch
+	url = https://github.com/RediSearch/RediSearch.git
