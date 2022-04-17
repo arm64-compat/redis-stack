@@ -6,7 +6,7 @@ os: linux
 
 addons:
   apt:
-    - python3
+  - python3
 
 env:
   global:
@@ -21,38 +21,41 @@ services:
 
 jobs:
   include:
-  - name: "Build RedisBloom"
+  - name: "Build ModuleBuilder"
     stage: build
     arch: arm64
     before_script:
-    - make -C RedisBloom setup
+    - cd ModuleBuilders
+    - git submodule update --init
+    - cd rmbuilder
+    - cp Dockerfile Dockerfile.arm
     script:
-    - make -C RedisBloom
-  - name: "Build RediSearch"
-    stage: build
-    arch: arm64
-    before_script:
-    - make -C RediSearch setup
-    script:
-    - make -C RediSearch
-  - name: "Build RedisJSON"
-    stage: build
-    arch: arm64
-    before_script:
-    - make -C RedisJSON setup
-    script:
-    - make -C RedisJSON
-  - name: "Build RedisTimeSeries"
-    stage: build
-    arch: arm64
-    before_script:
-    - make -C RedisTimeSeries setup
-    script:
-    - make -C RedisTimeSeries
-  - name: "Build RedisGraph"
-    stage: build
-    arch: arm64
-    before_script:
-    - make -C RedisGraph setup
-    script:
-    - make -C RedisGraph
+    - make ARM8=1 OSNICK=bullseye
+  # - name: "Build RediSearch"
+  #   stage: build
+  #   arch: arm64
+  #   before_script:
+  #   - make -C RediSearch setup
+  #   script:
+  #   - make -C RediSearch
+  # - name: "Build RedisJSON"
+  #   stage: build
+  #   arch: arm64
+  #   before_script:
+  #   - make -C RedisJSON setup
+  #   script:
+  #   - make -C RedisJSON
+  # - name: "Build RedisTimeSeries"
+  #   stage: build
+  #   arch: arm64
+  #   before_script:
+  #   - make -C RedisTimeSeries setup
+  #   script:
+  #   - make -C RedisTimeSeries
+  # - name: "Build RedisGraph"
+  #   stage: build
+  #   arch: arm64
+  #   before_script:
+  #   - make -C RedisGraph setup
+  #   script:
+  #   - make -C RedisGraph
