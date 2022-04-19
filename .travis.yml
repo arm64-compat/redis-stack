@@ -27,7 +27,8 @@ services:
 
 jobs:
   include:
-  - name: "Build Redis Bloom"
+  - &redis-bloom
+    name: "Build Redis Bloom"
     stage: build
     arch: arm64
     before_script:
@@ -38,10 +39,11 @@ jobs:
     - make
     workspaces:
       create:
-        name: redis-bloom
+        name: redis-bloom-${TRAVIS_CPU_ARCH}
         paths:
         - redisbloom.so
-  - name: "Build Redis JSON"
+  - &redis-json
+    name: "Build Redis JSON"
     stage: build
     arch: arm64
     before_script:
@@ -52,10 +54,11 @@ jobs:
     - make
     workspaces:
       create:
-        name: redis-json
+        name: redis-json-${TRAVIS_CPU_ARCH}
         paths:
         - bin/linux-arm64v8-release/rejson.so*
-  - name: "Build Redis Search"
+  - &redis-search
+    name: "Build Redis Search"
     stage: build
     arch: arm64
     before_script:
@@ -66,10 +69,11 @@ jobs:
     - make
     workspaces:
       create:
-        name: redis-search
+        name: redis-search-${TRAVIS_CPU_ARCH}
         paths:
         - bin/linux-arm64v8-release/search/redisearch.so*
-  - name: "Build Redis Graph"
+  - &redis-graph
+    name: "Build Redis Graph"
     stage: build
     arch: arm64
     before_script:
@@ -79,10 +83,11 @@ jobs:
     - make
     workspaces:
       create:
-        name: redis-graph
+        name: redis-graph-${TRAVIS_CPU_ARCH}
         paths:
         - src/redisgraph.so*
-  - name: "Build Redis Timeseries"
+  - &redis-timeseries
+    name: "Build Redis Timeseries"
     stage: build
     arch: arm64
     before_script:
@@ -93,19 +98,32 @@ jobs:
     - make
     workspaces:
       create:
-        name: redis-timeseries
+        name: redis-timeseries-${TRAVIS_CPU_ARCH}
         paths:
         - bin/redistimeseries.so*
-  - name: "Build Image"
+  - <<: *redis-bloom
+    arch: amd64
+  - <<: *redis-json
+    arch: amd64
+  - <<: *redis-search
+    arch: amd64
+  - <<: *redis-graph
+    arch: amd64
+  - <<: *redis-timeseries
+    arch: amd64
+  - &build-image
+    name: "Build Image"
     stage: docker-build
     arch: arm64
     workspaces:
       use:
-      - redis-bloom
-      - redis-graph
-      - redis-json
-      - redis-search
-      - redis-timeseries
+      - redis-bloom-${TRAVIS_CPU_ARCH}
+      - redis-graph-${TRAVIS_CPU_ARCH}
+      - redis-json-${TRAVIS_CPU_ARCH}
+      - redis-search-${TRAVIS_CPU_ARCH}
+      - redis-timeseries-${TRAVIS_CPU_ARCH}
     git:
       clone: false
     script: ls
+  - <<: *build-image
+    arch: amd64
