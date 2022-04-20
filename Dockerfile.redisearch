@@ -1,0 +1,37 @@
+ARG BUILD_ARCH=arm64v8
+
+FROM ${BUILD_ARCH}/redis:6.2-bullseye as search
+
+COPY RediSearch /build
+WORKDIR /build
+
+RUN ./deps/readies/bin/getupdates
+RUN ./deps/readies/bin/getpy3
+RUN ./sbin/system-setup.py
+
+RUN make
+
+FROM ${BUILD_ARCH}/redis:6.2-bullseye as json
+
+COPY RedisJSON /build
+WORKDIR /build
+
+RUN ./deps/readies/bin/getupdates
+RUN ./deps/readies/bin/getpy3
+RUN ./sbin/system-setup.py
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+RUN PATH="$HOME/.cargo/bin:$PATH" make
+
+FROM ${BUILD_ARCH}/redis:6.2-bullseye
+
+ARG BUILD_ARCH
+
+ENV LIBDIR /usr/lib/redis/modules
+WORKDIR /data
+RUN mkdir -p "$LIBDIR"
+
+COPY --from=search /build/bin/linux-${BUILD_ARCH}-release/search/redisearch.so "$LIBDIR"
+COPY --from=json /build/bin/linux-${BUILD_ARCH}-release/rejson.so "$LIBDIR"
+
+CMD ["redis-server", "--loadmodule", "$LIBDIR/redisearch.so", "--loadmodule", "$LIBDIR/rejson.so"]
