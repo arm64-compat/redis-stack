@@ -4,13 +4,6 @@ dist: focal
 
 os: linux
 
-addons:
-  apt:
-  - python2
-  - python3
-  - cargo
-  - peg
-
 env:
   global:
   - DOCKER_REGISTRY=ghcr.io
@@ -18,9 +11,6 @@ env:
 
 stages:
 - build
-
-git:
-  submodules: false
 
 services:
 - docker
@@ -31,76 +21,32 @@ jobs:
     name: "Build Redis Bloom"
     stage: build
     arch: arm64
-    before_script:
-    - cd RedisBloom
-    - git submodule update --init --recursive
-    - make setup
     script:
-    - make
-    workspaces:
-      create:
-        name: redis-bloom-${TRAVIS_CPU_ARCH}
-        paths:
-        - redisbloom.so
+    - docker build -t ghcr.io/arm64-compat/${TRAVIS_CPU_ARCH}/redis/rebloom -f Dockerfile.redisbloom .
   - &redis-json
     name: "Build Redis JSON"
     stage: build
     arch: arm64
-    before_script:
-    - cd RedisJSON
-    - git submodule update --init --recursive
-    - make setup
     script:
-    - make
-    workspaces:
-      create:
-        name: redis-json-${TRAVIS_CPU_ARCH}
-        paths:
-        - bin/linux-arm64v8-release/rejson.so*
+    - docker build -t ghcr.io/arm64-compat/${TRAVIS_CPU_ARCH}/redis/rejson -f Dockerfile.redisjson .
   - &redis-search
     name: "Build Redis Search"
     stage: build
     arch: arm64
-    before_script:
-    - cd RediSearch
-    - git submodule update --init --recursive
-    - make setup
     script:
-    - make
-    workspaces:
-      create:
-        name: redis-search-${TRAVIS_CPU_ARCH}
-        paths:
-        - bin/linux-arm64v8-release/search/redisearch.so*
+    - docker build -t ghcr.io/arm64-compat/${TRAVIS_CPU_ARCH}/redis/research -f Dockerfile.redisearch .
   - &redis-graph
     name: "Build Redis Graph"
     stage: build
     arch: arm64
-    before_script:
-    - cd RedisGraph
-    - git submodule update --init --recursive
     script:
-    - make
-    workspaces:
-      create:
-        name: redis-graph-${TRAVIS_CPU_ARCH}
-        paths:
-        - src/redisgraph.so*
+    - docker build -t ghcr.io/arm64-compat/${TRAVIS_CPU_ARCH}/redis/regraph -f Dockerfile.redisgraph .
   - &redis-timeseries
     name: "Build Redis Timeseries"
     stage: build
     arch: arm64
-    before_script:
-    - cd RedisTimeSeries
-    - git submodule update --init --recursive
-    - make setup
     script:
-    - make
-    workspaces:
-      create:
-        name: redis-timeseries-${TRAVIS_CPU_ARCH}
-        paths:
-        - bin/redistimeseries.so*
+    - docker build -t ghcr.io/arm64-compat/${TRAVIS_CPU_ARCH}/redis/retimeseries -f Dockerfile.redistimeseries .
   - <<: *redis-bloom
     arch: amd64
   - <<: *redis-json
@@ -110,20 +56,4 @@ jobs:
   - <<: *redis-graph
     arch: amd64
   - <<: *redis-timeseries
-    arch: amd64
-  - &build-image
-    name: "Build Image"
-    stage: docker-build
-    arch: arm64
-    workspaces:
-      use:
-      - redis-bloom-${TRAVIS_CPU_ARCH}
-      - redis-graph-${TRAVIS_CPU_ARCH}
-      - redis-json-${TRAVIS_CPU_ARCH}
-      - redis-search-${TRAVIS_CPU_ARCH}
-      - redis-timeseries-${TRAVIS_CPU_ARCH}
-    git:
-      clone: false
-    script: ls
-  - <<: *build-image
     arch: amd64
