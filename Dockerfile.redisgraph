@@ -1,0 +1,23 @@
+ARG BUILD_ARCH=arm64v8
+FROM ${BUILD_ARCH}/redis:6.2-bullseye as builder
+
+COPY RedisGraph /build
+WORKDIR /build
+
+RUN ./deps/readies/bin/getupdates
+RUN ./deps/readies/bin/getpy3
+RUN ./sbin/system-setup.py
+
+RUN make
+
+FROM ${BUILD_ARCH}/redis:6.2-bullseye
+
+ENV LIBDIR /usr/lib/redis/modules
+WORKDIR /data
+RUN mkdir -p "$LIBDIR"
+
+RUN apt-get -qq update; apt-get -q install -y libgomp1
+
+COPY --from=builder /build/src/redisgraph.so "$LIBDIR"
+
+CMD ["redis-server", "--loadmodule", "$LIBDIR/redistimeseries.so"]
