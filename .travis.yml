@@ -33,7 +33,7 @@ services:
 jobs:
   include:
   - &redis-bloom
-    name: "Build Redis Bloom"
+    name: "Build Redis Bloom ($TRAVIS_CPU_ARCH)"
     stage: build
     arch: arm64
     before_script:
@@ -47,7 +47,7 @@ jobs:
         all_branches: true
       script: docker push $REDIS_IMAGE
   - &redis-json
-    name: "Build Redis JSON"
+    name: "Build Redis JSON ($TRAVIS_CPU_ARCH)"
     stage: build
     arch: arm64
     before_script:
@@ -57,7 +57,7 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisjson .
     deploy: *push_image
   - &redis-search
-    name: "Build Redis Search"
+    name: "Build Redis Search ($TRAVIS_CPU_ARCH)"
     stage: build
     arch: arm64
     before_script:
@@ -67,7 +67,7 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisearch .
     deploy: *push_image
   - &redis-graph
-    name: "Build Redis Graph"
+    name: "Build Redis Graph ($TRAVIS_CPU_ARCH)"
     stage: build
     arch: arm64
     before_script:
@@ -77,7 +77,7 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisgraph .
     deploy: *push_image
   - &redis-timeseries
-    name: "Build Redis Timeseries"
+    name: "Build Redis Timeseries ($TRAVIS_CPU_ARCH)"
     stage: build
     arch: arm64
     before_script:
@@ -97,7 +97,7 @@ jobs:
   - <<: *redis-timeseries
     arch: amd64
   - &redis-stack
-    name: "Build Redis Stack"
+    name: "Build Redis Stack ($TRAVIS_CPU_ARCH)"
     stage: build-stack
     arch: arm64
     before_script:
