@@ -14,6 +14,8 @@ ENV LIBDIR /usr/lib/redis/modules
 WORKDIR /data
 RUN mkdir -p "$LIBDIR"
 
+RUN apt-get -qq update; apt-get -q install -y libgomp1
+
 COPY --from=bloom $LIBDIR/redisbloom.so $LIBDIR/redisboom.so
 COPY --from=search $LIBDIR/redisearch.so $LIBDIR/redisearch.so
 COPY --from=json $LIBDIR/rejson.so $LIBDIR/rejson.so
