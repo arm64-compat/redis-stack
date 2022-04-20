@@ -6,7 +6,7 @@ FROM ghcr.io/arm64-compat/redis/rebloom:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} 
 FROM ghcr.io/arm64-compat/redis/research:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as search
 FROM ghcr.io/arm64-compat/redis/rejson:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as json
 FROM ghcr.io/arm64-compat/redis/regraph:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as graph
-FROM ghcr.io/arm64-compat/redis/retimeseris:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as timeseries
+FROM ghcr.io/arm64-compat/redis/retimeseries:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as timeseries
 
 FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX}
 

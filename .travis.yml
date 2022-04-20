@@ -28,6 +28,7 @@ before_deploy:
 stages:
 - build
 - build-stack
+- manifest
 
 services:
 - docker
@@ -110,3 +111,17 @@ jobs:
     deploy: *push_image
   - <<: *redis-stack
     arch: amd64
+  - stage: manifest
+    before_script:
+    - *common_before_script
+    - export DOCKER_TAG=$REDIS_VERSION-$OSNIX
+    - export DOCKER_REPOSITORY=$DOCKER_REPOSITORY/redis-stack-server
+    - export ARM_TAG=$REDIS_VERSION-arm64v8-$OSNIX
+    - export AMD_TAG=$REDIS_VERSION-x64-$OSNIX
+    script:
+    - docker manifest create $DOCKER_REPOSITORY:$DOCKER_TAG $DOCKER_REPOSITORY:$ARM_TAG $DOCKER_REPOSITORY:$AMD_TAG
+    deploy:
+      provider: script
+      on:
+        all_branches: true
+      script: docker manifest push $DOCKER_REPOSITORY:$DOCKER_TAG
