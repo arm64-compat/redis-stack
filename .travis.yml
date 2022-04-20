@@ -34,7 +34,7 @@ services:
 jobs:
   include:
   - &redis-bloom
-    name: "Build Redis Bloom ($TRAVIS_CPU_ARCH)"
+    name: "Build Redis Bloom (arm64v8)"
     stage: build
     arch: arm64
     before_script:
@@ -48,7 +48,7 @@ jobs:
         all_branches: true
       script: docker push $REDIS_IMAGE
   - &redis-json
-    name: "Build Redis JSON ($TRAVIS_CPU_ARCH)"
+    name: "Build Redis JSON (arm64v8)"
     stage: build
     arch: arm64
     before_script:
@@ -58,7 +58,7 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisjson .
     deploy: *push_image
   - &redis-search
-    name: "Build Redis Search ($TRAVIS_CPU_ARCH)"
+    name: "Build Redis Search (arm64v8)"
     stage: build
     arch: arm64
     before_script:
@@ -68,7 +68,7 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisearch .
     deploy: *push_image
   - &redis-graph
-    name: "Build Redis Graph ($TRAVIS_CPU_ARCH)"
+    name: "Build Redis Graph (arm64v8)"
     stage: build
     arch: arm64
     before_script:
@@ -78,7 +78,7 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisgraph .
     deploy: *push_image
   - &redis-timeseries
-    name: "Build Redis Timeseries ($TRAVIS_CPU_ARCH)"
+    name: "Build Redis Timeseries (arm64v8)"
     stage: build
     arch: arm64
     before_script:
@@ -88,17 +88,22 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redistimeseries .
     deploy: *push_image
   - <<: *redis-bloom
+    name: "Build Redis Bloom (amd64)"
     arch: amd64
   - <<: *redis-json
+    name: "Build Redis JSON (amd64)"
     arch: amd64
   - <<: *redis-search
+    name: "Build Redis Search (amd64)"
     arch: amd64
   - <<: *redis-graph
+    name: "Build Redis Graph (amd64)"
     arch: amd64
   - <<: *redis-timeseries
+    name: "Build Redis Timeseries (amd64)"
     arch: amd64
   - &redis-stack
-    name: "Build Redis Stack ($TRAVIS_CPU_ARCH)"
+    name: "Build Redis Stack (arm64v8)"
     stage: build-stack
     arch: arm64
     before_script:
@@ -108,8 +113,10 @@ jobs:
     - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redistack .
     deploy: *push_image
   - <<: *redis-stack
+    name: "Build Redis Stack (amd64)"
     arch: amd64
   - stage: manifest
+    name: "Build Redis Stack Manifest"
     before_script:
     - *common_before_script
     - export DOCKER_TAG=$REDIS_VERSION-$OSNIX
