@@ -1,0 +1,21 @@
+ARG BUILD_ARCH=arm64v8
+ARG REDIS_VERSION=6.0-latest
+ARG OSNIX=bullseye
+
+FROM ghcr.io/arm64-compat/redis/rebloom:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as bloom
+FROM ghcr.io/arm64-compat/redis/research:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as search
+FROM ghcr.io/arm64-compat/redis/rejson:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as json
+FROM ghcr.io/arm64-compat/redis/regraph:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as graph
+FROM ghcr.io/arm64-compat/redis/retimeseris:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as timeseries
+
+FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX}
+
+ENV LIBDIR /usr/lib/redis/modules
+WORKDIR /data
+RUN mkdir -p "$LIBDIR"
+
+COPY --from=bloom $LIBDIR/redisbloom.so $LIBDIR/redisboom.so
+COPY --from=search $LIBDIR/redisearch.so $LIBDIR/redisearch.so
+COPY --from=json $LIBDIR/redisjson.so $LIBDIR/redisjson.so
+COPY --from=graph $LIBDIR/redisgraph.so $LIBDIR/redisgraph.so
+COPY --from=timeseris $LIBDIR/redistimeseries.so $LIBDIR/redistimeseries.so
