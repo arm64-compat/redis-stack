@@ -7,15 +7,18 @@ os: linux
 env:
   global:
   - DOCKER_REGISTRY=ghcr.io
-  - DOCKER_REPOSITORY=arm64-compat
+  - DOCKER_REPOSITORY=arm64-compat/redis
+  - REDIS_VERSION=6.0-latest
+  - OSNIX=bullseye
 
 stages:
 - build
 
 before_script:
-- export BUILD_ARCH=$([[ "$TRAVIS_CPU_ARCH" == "arm64" ]] && echo "arm64v8" || echo "amd64")
-- export DOCKER_REPOSITORY=$DOCKER_REGISTRY/$DOCKER_REPOSITORY/$BUILD_ARCH/redis
-- export DOCKER_BUILD="docker build --build-arg BUILD_ARCH=$BUILD_ARCH"
+- export BUILD_ARCH=$([[ "$TRAVIS_CPU_ARCH" == "arm64" ]] && echo "arm64v8" || echo "x64")
+- export DOCKER_REPOSITORY=$DOCKER_REGISTRY/$DOCKER_REPOSITORY
+- export DOCKER_TAG=$REDIS_VERSION-$BUILD_ARCH-$OSNIX
+- export DOCKER_BUILD="docker build --build-arg BUILD_ARCH=$BUILD_ARCH --build-arg REDIS_VERSION=$REDIS_VERSION --build-arg OSNIX=$OSNIX"
 
 services:
 - docker
@@ -27,31 +30,31 @@ jobs:
     stage: build
     arch: arm64
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/rebloom -f Dockerfile.redisbloom .
+    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/rebloom:$DOCKER_TAG -f Dockerfile.redisbloom .
   - &redis-json
     name: "Build Redis JSON"
     stage: build
     arch: arm64
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/rejson -f Dockerfile.redisjson .
+    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/rejson:$DOCKER_TAG -f Dockerfile.redisjson .
   - &redis-search
     name: "Build Redis Search"
     stage: build
     arch: arm64
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/research -f Dockerfile.redisearch .
+    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/research:$DOCKER_TAG -f Dockerfile.redisearch .
   - &redis-graph
     name: "Build Redis Graph"
     stage: build
     arch: arm64
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/regraph -f Dockerfile.redisgraph .
+    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/regraph:$DOCKER_TAG -f Dockerfile.redisgraph .
   - &redis-timeseries
     name: "Build Redis Timeseries"
     stage: build
     arch: arm64
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/retimeseries -f Dockerfile.redistimeseries .
+    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/retimeseries:$DOCKER_TAG -f Dockerfile.redistimeseries .
   - <<: *redis-bloom
     arch: amd64
   - <<: *redis-json

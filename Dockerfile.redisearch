@@ -1,8 +1,8 @@
 ARG BUILD_ARCH=arm64v8
-ARG REDIS_VERSION=6.2
+ARG REDIS_VERSION=6.0-latest
 ARG OSNIX=bullseye
 
-FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX} as search
+FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as search
 
 COPY RediSearch /build
 WORKDIR /build
@@ -13,7 +13,7 @@ RUN ./sbin/system-setup.py
 
 RUN make
 
-FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX} as json
+FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as json
 
 COPY RedisJSON /build
 WORKDIR /build
@@ -25,7 +25,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 RUN PATH="$HOME/.cargo/bin:$PATH" make
 
-FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX}
+FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX}
 
 ARG BUILD_ARCH
 

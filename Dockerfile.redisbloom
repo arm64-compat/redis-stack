@@ -1,8 +1,8 @@
 ARG BUILD_ARCH=arm64v8
-ARG REDIS_VERSION=6.2
+ARG REDIS_VERSION=6.0-latest
 ARG OSNIX=bullseye
 
-FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX} as builder
+FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX} as builder
 
 COPY RedisBloom /build
 WORKDIR /build
@@ -13,7 +13,7 @@ RUN ./system-setup.py
 
 RUN make
 
-FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX}
+FROM redisfab/redis:${REDIS_VERSION}-${BUILD_ARCH}-${OSNIX}
 
 ENV LIBDIR /usr/lib/redis/modules
 WORKDIR /data
