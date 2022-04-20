@@ -1,5 +1,8 @@
 ARG BUILD_ARCH=arm64v8
-FROM ${BUILD_ARCH}/redis:6.2-bullseye as builder
+ARG REDIS_VERSION=6.2
+ARG OSNIX=bullseye
+
+FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX} as builder
 
 COPY RedisGraph /build
 WORKDIR /build
@@ -10,7 +13,7 @@ RUN ./sbin/system-setup.py
 
 RUN make
 
-FROM ${BUILD_ARCH}/redis:6.2-bullseye
+FROM ${BUILD_ARCH}/redis:${REDIS_VERSION}-${OSNIX}
 
 ENV LIBDIR /usr/lib/redis/modules
 WORKDIR /data
