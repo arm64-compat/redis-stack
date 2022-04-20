@@ -10,15 +10,20 @@ env:
   - DOCKER_REPOSITORY=arm64-compat/redis
   - REDIS_VERSION=6.0-latest
   - OSNIX=bullseye
+  - secure: Tx48doFOaRzQj8SeXP40CI5g/btfmpTPEtoIeObhV9SdFdE3L8s1cDrB8YcNd59wrmVDRGRRmvrsCwCO6WAvu9pyNWMV8Ox4JA86NJovR3/u57Y7ZSsZLavTysoeyvxNh1bkqFMAMjzivZ+oKTLsbbrV0XPAvr8rKl8s4DEnnVp4KFyz1Z8qE0BtpWbCZDkoHKBx0H1vMAPyVux56aS49gWHsCCfSA3/5AkChuhcGgTz8J2IudkoFU4ANiVgfFUFx418raKMHyNOwz4ia8eMPwaVzf2msloG1+4E63Nm6r7MjLZyRAuS0/zHGvNkckzubcT9TB3jjcUtkFOweWUxnRAz0Ha1uNkLS/QEeGbID/4OOiS8BC06lkv5DVT6ngPTQBfC/Zm9i/6c2gtk07pSe5v4NoiEJHBheFPCNreMUqScT5SAO+WJKUbWuRbsKDfcZvhFfHMcBgnZo40FBqiNQTnOYiD58Pz4VL6+3cgWFOFGyC/pieP6KkPXFKWBBRb7L+IGSjE88RHUrkKR2ucsLxslCitMPc7oRj+ewwxFtyWMpb9zrIMkHRQ3n1SIlQWozpYHRdBzsHVlYa688Y7TxzexMMUBFEmq4LPj8zrO2oF/1+ynLWklmvIM1lvPQSBda2SXv2j57hsxa7WqFkyRLbtBS1O896z6Q5ifXoEcoXY=
+  - secure: PMAj5Ik8Tsvceu7u2lqMQrhpmkWMx4fP/L/col/6B9Er/Up+XHQkcYC+bqmY8nQZKjNzGulVTBt4XUSB28ZuzB9y5WE56zAClS875dP+M6RoodTQs050cGdBsdyfuJ9dSOUT2csxhEA8rFd83Vqurk2TCpmY2HkvgoiBrUPQuC7v7sRWF1InbAoBnotJJ4rxSLcEsNddenQDFt77Kckd6I+AVEvbPrnKrm32cwHXKrXrRBADwN8v1q995N7CWB52mwNIf3UFzZprZgljYheH1aR1puPBvIwU5xwp/uu4CBABykrvnn0gRFvI0KZJFU1Ftv0T8h+rUdA7YgxaPyCuqN+6u78JvXG5qcX4sxogzGoGGFfpp3hIl5ZKBJ1g8ChM+t2+ZxD4ClcykjVwCPL/DgfofbmFlnotFERGgmr35Rb4RmqzREoJVgGoslm+xTDm8rEdzY94aAymJ3Eqtx4ceRhGknMaeqypOCIMSrLrxzTOYDBjoih42F2176c0fCMFM7hgerTUIAg8AE2M7oa8A6vQYdS0qeUAuqyAC7GsaM2axZLTJJX80YwfL/W4vspm/9q7Pxn1CeLMBstWoP4w28DUJ5+o0msR23gQlVUAAMDM39J6eGmLTEbtzNfWPP9EzLJNBtkMlWtVQEUjSi33iDXVmQoFbZZCBSpQYyhOfWU=
 
 stages:
 - build
 
-before_script:
+before_script: &common_before_script
 - export BUILD_ARCH=$([[ "$TRAVIS_CPU_ARCH" == "arm64" ]] && echo "arm64v8" || echo "x64")
 - export DOCKER_REPOSITORY=$DOCKER_REGISTRY/$DOCKER_REPOSITORY
 - export DOCKER_TAG=$REDIS_VERSION-$BUILD_ARCH-$OSNIX
 - export DOCKER_BUILD="docker build --build-arg BUILD_ARCH=$BUILD_ARCH --build-arg REDIS_VERSION=$REDIS_VERSION --build-arg OSNIX=$OSNIX"
+
+before_deploy:
+- echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY}
 
 services:
 - docker
@@ -29,32 +34,56 @@ jobs:
     name: "Build Redis Bloom"
     stage: build
     arch: arm64
+    before_script:
+    - *common_before_script
+    - export REDIS_IMAGE=$DOCKER_REPOSITORY/rebloom:$DOCKER_TAG
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/rebloom:$DOCKER_TAG -f Dockerfile.redisbloom .
+    - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisbloom .
+    deploy: &push_image
+      provider: script
+      on:
+        all_branches: true
+      script: docker push $REDIS_IMAGE
   - &redis-json
     name: "Build Redis JSON"
     stage: build
     arch: arm64
+    before_script:
+    - *common_before_script
+    - export REDIS_IMAGE=$DOCKER_REPOSITORY/rejson:$DOCKER_TAG
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/rejson:$DOCKER_TAG -f Dockerfile.redisjson .
+    - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisjson .
+    deploy: *push_image
   - &redis-search
     name: "Build Redis Search"
     stage: build
     arch: arm64
+    before_script:
+    - *common_before_script
+    - export REDIS_IMAGE=$DOCKER_REPOSITORY/research:$DOCKER_TAG
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/research:$DOCKER_TAG -f Dockerfile.redisearch .
+    - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisearch .
+    deploy: *push_image
   - &redis-graph
     name: "Build Redis Graph"
     stage: build
     arch: arm64
+    before_script:
+    - *common_before_script
+    - export REDIS_IMAGE=$DOCKER_REPOSITORY/regraph:$DOCKER_TAG
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/regraph:$DOCKER_TAG -f Dockerfile.redisgraph .
+    - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redisgraph .
+    deploy: *push_image
   - &redis-timeseries
     name: "Build Redis Timeseries"
     stage: build
     arch: arm64
+    before_script:
+    - *common_before_script
+    - export REDIS_IMAGE=$DOCKER_REPOSITORY/retimeseries:$DOCKER_TAG
     script:
-    - $DOCKER_BUILD -t $DOCKER_REPOSITORY/retimeseries:$DOCKER_TAG -f Dockerfile.redistimeseries .
+    - $DOCKER_BUILD -t $REDIS_IMAGE -f Dockerfile.redistimeseries .
+    deploy: *push_image
   - <<: *redis-bloom
     arch: amd64
   - <<: *redis-json
