@@ -23,7 +23,8 @@ before_deploy:
 - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $DOCKER_REGISTRY
 
 stages:
-- build
+- name: build
+  if: 1 == 2
 - build-stack
 - manifest
 
