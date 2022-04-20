@@ -1,0 +1,21 @@
+ARG BUILD_ARCH=arm64v8
+FROM ${BUILD_ARCH}/redis:6.2-bullseye as builder
+
+COPY RedisBloom /build
+WORKDIR /build
+
+RUN ./deps/readies/bin/getupdates
+RUN ./deps/readies/bin/getpy3
+RUN ./system-setup.py
+
+RUN make
+
+FROM ${BUILD_ARCH}/redis:6.2-bullseye
+
+ENV LIBDIR /usr/lib/redis/modules
+WORKDIR /data
+RUN mkdir -p "$LIBDIR"
+
+COPY --from=builder /build/redisbloom.so "$LIBDIR"
+
+CMD ["redis-server", "--loadmodule", "$LIBDIR/redisbloom.so"]
