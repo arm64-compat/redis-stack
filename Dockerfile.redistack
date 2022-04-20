@@ -16,6 +16,6 @@ RUN mkdir -p "$LIBDIR"
 
 COPY --from=bloom $LIBDIR/redisbloom.so $LIBDIR/redisboom.so
 COPY --from=search $LIBDIR/redisearch.so $LIBDIR/redisearch.so
-COPY --from=json $LIBDIR/redisjson.so $LIBDIR/redisjson.so
+COPY --from=json $LIBDIR/rejson.so $LIBDIR/rejson.so
 COPY --from=graph $LIBDIR/redisgraph.so $LIBDIR/redisgraph.so
 COPY --from=timeseris $LIBDIR/redistimeseries.so $LIBDIR/redistimeseries.so
